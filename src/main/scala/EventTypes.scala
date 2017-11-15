@@ -12,20 +12,22 @@ sealed trait RequestType
 case object SubscribeRequest extends RequestType
 case object UnsubscribeRequest extends RequestType
 case class LoginRequest(username: String, password: String) extends RequestType
-case class AddTableRequest(table: Table, after_id: Long = 1) extends RequestType
+case class AddTableRequest(table: Table, after_id: Int) extends RequestType
 case class UpdateTableRequest(table: Table) extends RequestType
-case class RemoveTableRequest(id: Long) extends RequestType
+case class RemoveTableRequest(id: Int) extends RequestType
 case class PingRequest(seq: Int) extends RequestType
 
 case class PongResponse(seq: Int)
 case class LoginResponse(user_type: String)
-case class AddTableResponse(table: Table, after_id: Long = 1)
-case class UpdateTableResponse(table: Table)
 case class GetTableListResponse(tables: List[Table])
-case class RemoveTableResponse(id: Long)
 
-case class RemoveTableErrorResponse(id: Long)
-case class UpdateTableErrorResponse(id: Long)
+sealed trait TablesChangedResponseType
+case class AddTableResponse(table: Table, after_id: Int) extends TablesChangedResponseType
+case class UpdateTableResponse(table: Table) extends TablesChangedResponseType
+case class RemoveTableResponse(id: Int) extends TablesChangedResponseType
+
+case class RemoveTableErrorResponse(id: Int)
+case class UpdateTableErrorResponse(id: Int)
 
 case object LoginFailedResponse
 case object NotAuthorizedResponse

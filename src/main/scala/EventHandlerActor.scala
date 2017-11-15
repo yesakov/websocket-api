@@ -1,4 +1,5 @@
 import akka.actor.{Actor, ActorRef}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class EventHandlerActor extends Actor {
 
@@ -46,10 +47,19 @@ class EventHandlerActor extends Actor {
 
   def addTableHandler(userId: String, add: AddTableRequest): Unit = {
     if (isAdmin(userId)) {
-      wsClients(userId).subscribedToUpdates = true
-      self ! ResponseEvent(userId, GetTableListResponse(DummyDB.getAllTables))
+      DummyDB.addTable(add.table, add.after_id).onComplete({
+        table => table.getOrElse()
+          sendToSubscribers(add.after_id, AddTableResponse(table.get, add.after_id))
+      })
+
     }
     else self ! ResponseEvent(userId, NotAuthorizedResponse)
+  }
+
+  def sendToSubscribers(afterId: Int, response: TablesChangedResponseType): Unit = {
+    wsClients.withFilter(_._2.subscribedToUpdates).foreach(user => {
+      self ! ResponseEvent(user._1, response)
+    })
   }
 
   def isAuthorized(userId: String) = wsClients(userId).authorized
