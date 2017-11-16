@@ -10,12 +10,12 @@ object DummyDB {
   }
 
   private var tableId = 0
-  def getNewTableId() = {
+  def getNewTableId(): Int = {
     tableId += 1
     tableId
   }
 
-  def getAllTables = tables
+  def getAllTables: List[Table] = tables
 
   def addTable(table: Table, afterId: Int): Future[Table] = Future {
     table.id = Some(getNewTableId())
@@ -28,6 +28,23 @@ object DummyDB {
       }
     }
     table
+  }
+
+  def updateTable(updateTable: Table): Future[Option[Table]] = Future {
+    val idx = tables.indexWhere(x => x.id.isDefined && updateTable.id.isDefined && x.id.get == updateTable.id.get)
+    if (idx != -1) {
+      tables = tables.take(idx) ::: updateTable :: tables.drop(idx + 1)
+      Some(updateTable)
+    }
+    else None
+  }
+
+  def removeTable(removeTableId: Int): Future[Int] = Future {
+    if (tables.indexWhere(x => x.id.isDefined && x.id.get == removeTableId) != -1) {
+      tables = tables.filter(table => table.id.get != removeTableId)
+      removeTableId
+    }
+    else -1
   }
 
   private val usersData = Map[(String, String), UserData](

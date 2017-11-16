@@ -1,4 +1,3 @@
-import org.json4s
 import org.json4s.{DefaultFormats, TypeHints}
 
 object RequestSerializer {
@@ -41,6 +40,6 @@ object RequestSerializer {
 
   def deserialize(json: String): RequestType = read[RequestType](json)
 
-  def serialize[T <: AnyRef](any: T): String = write(any)
+  def serialize[WSResponseType <: AnyRef](any: WSResponseType): String = write(any)
 
 }

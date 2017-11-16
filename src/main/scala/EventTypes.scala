@@ -17,19 +17,20 @@ case class UpdateTableRequest(table: Table) extends RequestType
 case class RemoveTableRequest(id: Int) extends RequestType
 case class PingRequest(seq: Int) extends RequestType
 
-case class PongResponse(seq: Int)
-case class LoginResponse(user_type: String)
-case class GetTableListResponse(tables: List[Table])
+sealed trait WSResponseType
+case class PongResponse(seq: Int) extends WSResponseType
+case class LoginResponse(user_type: String) extends WSResponseType
+case class GetTableListResponse(tables: List[Table]) extends WSResponseType
 
 sealed trait TablesChangedResponseType
-case class AddTableResponse(table: Table, after_id: Int) extends TablesChangedResponseType
-case class UpdateTableResponse(table: Table) extends TablesChangedResponseType
-case class RemoveTableResponse(id: Int) extends TablesChangedResponseType
+case class AddTableResponse(table: Table, after_id: Int) extends TablesChangedResponseType with WSResponseType
+case class UpdateTableResponse(table: Table) extends TablesChangedResponseType with WSResponseType
+case class RemoveTableResponse(id: Int) extends TablesChangedResponseType with WSResponseType
 
-case class RemoveTableErrorResponse(id: Int)
-case class UpdateTableErrorResponse(id: Int)
+case class RemoveTableErrorResponse(id: Int) extends WSResponseType
+case class UpdateTableErrorResponse(id: Int) extends WSResponseType
 
-case object LoginFailedResponse
-case object NotAuthorizedResponse
+case object LoginFailedResponse extends WSResponseType
+case object NotAuthorizedResponse extends WSResponseType
 
-case class WSAPIError(error: String)
+case class WSAPIError(error: String) extends WSResponseType
