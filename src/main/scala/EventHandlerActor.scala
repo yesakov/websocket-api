@@ -20,9 +20,9 @@ class EventHandlerActor extends Actor {
 
   def handleUserRequest(userId: String, request: RequestType): Unit = {
     request match {
-      case r: LoginRequest => loginHandle(userId, r)
+      case r: LoginRequest => loginHandler(userId, r)
       case PingRequest(p) => self ! ResponseEvent(userId, PongResponse(p))
-      case SubscribeRequest => subscribeHandle(userId)
+      case SubscribeRequest => subscribeHandler(userId)
       case UnsubscribeRequest => wsClients(userId).subscribedToUpdates = false
       case add: AddTableRequest => addTableHandler(userId, add)
       case update: UpdateTableRequest => updateTableHandler(userId, update)
@@ -30,7 +30,7 @@ class EventHandlerActor extends Actor {
     }
   }
 
-  def loginHandle(userId: String, r: LoginRequest): Unit = {
+  def loginHandler(userId: String, r: LoginRequest): Unit = {
     DummyDB.getUserData(r.username, r.password) match {
       case Some(userData) =>
         val wsClient = wsClients(userId)
@@ -42,7 +42,7 @@ class EventHandlerActor extends Actor {
     }
   }
 
-  def subscribeHandle(userId: String): Unit = {
+  def subscribeHandler(userId: String): Unit = {
     if (isAuthorized(userId)) {
       wsClients(userId).subscribedToUpdates = true
       self ! ResponseEvent(userId, GetTableListResponse(DummyDB.getAllTables))
